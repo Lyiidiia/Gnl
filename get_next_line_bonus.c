@@ -18,7 +18,7 @@ void	free_null(char **ptr)
 	if (*ptr != NULL)
 	{
 		free(*ptr);
-		ptr = NULL;
+		*ptr = NULL;
 	}
 }
 
@@ -61,7 +61,12 @@ char	*read_line(int fd, char **buffer, char *line)
 	while (!new_line)
 	{
 		nbytes = read(fd, line, BUFFER_SIZE);
-		if (nbytes <= 0)
+		if (nbytes < 0)
+		{
+			free_null(buffer);
+			return (NULL);
+		}
+		else if (nbytes == 0)
 			return (join_line(nbytes, buffer));
 		line[nbytes] = 0;
 		aux = ft_strjoin(*buffer, line);
@@ -75,14 +80,15 @@ char	*read_line(int fd, char **buffer, char *line)
 char	*get_next_line(int fd)
 // Read the file descriptor and return the line
 {
-	static char	*buffer[MAX_BUFF + 1];
+	static char	*buffer[MAX_BUFF];
 	char		*line;
 	char		*res;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || fd > MAX_BUFF)
 		return (NULL);
+	res = NULL;
 	line = (char *)malloc(sizeof(char) * BUFFER_SIZE + 1);
-	if (line == NULL)
+	if (!line)
 		return (NULL);
 	if (!buffer[fd])
 		buffer[fd] = ft_strdup("");

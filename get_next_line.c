@@ -18,7 +18,7 @@ void	free_null(char **ptr)
 	if (*ptr != NULL)
 	{
 		free(*ptr);
-		ptr = NULL;
+		*ptr = NULL;
 	}
 }
 
@@ -61,7 +61,12 @@ char	*read_line(int fd, char **buffer, char *line)
 	while (!new_line)
 	{
 		nbytes = read(fd, line, BUFFER_SIZE);
-		if (nbytes <= 0)
+		if (nbytes < 0)
+		{
+			free_null(buffer);
+			return (NULL);
+		}
+		if (nbytes == 0)
 			return (join_line(nbytes, buffer));
 		line[nbytes] = '\0';
 		aux = ft_strjoin(*buffer, line);
